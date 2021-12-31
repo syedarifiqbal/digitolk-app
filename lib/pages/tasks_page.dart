@@ -250,9 +250,9 @@ class _TasksPageState extends State<TasksPage> with TickerProviderStateMixin {
   }
 
   void setTasks(List<Task> tasks) {
+    completedTasks = tasks.where((t) => t.completed).toList();
+    uncompletedTasks = tasks.where((t) => !t.completed).toList();
     setState(() {
-      completedTasks = tasks.where((t) => t.completed).toList();
-      uncompletedTasks = tasks.where((t) => !t.completed).toList();
       loading = false;
     });
   }

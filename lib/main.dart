@@ -2,10 +2,20 @@ import 'package:digitolk_test/constants.dart';
 import 'package:digitolk_test/pages/home_page.dart';
 import 'package:digitolk_test/pages/login_page.dart';
 import 'package:digitolk_test/pages/splash_page.dart';
+import 'package:digitolk_test/services/local_notification_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void main() {
+Future<void> backgroundFirebaseHandler(RemoteMessage message) async {}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  LocalNotificationService.initialize();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(backgroundFirebaseHandler);
+
   runApp(const MyApp());
 }
 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "698346199168",
+    "project_id": "laravel-task-276714",
+    "storage_bucket": "laravel-task-276714.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698346199168:android:8668f7a8a29b5ddd272e65",
+        "android_client_info": {
+          "package_name": "com.example.digitolk_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698346199168-8oern1cl03m4mje3d474p95so1bn4rli.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg-yB7gM990G2k4YVHqI7MhtL3EQ1ULBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698346199168-8oern1cl03m4mje3d474p95so1bn4rli.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

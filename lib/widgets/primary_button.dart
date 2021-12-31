@@ -17,9 +17,9 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Text(this.title),
+          child: Text(title),
         ),
-        onPressed: this.onTab,
+        onPressed: onTab,
         style: ButtonStyle(
           // minimumSize: Size(double.infinity, 30),
           backgroundColor: MaterialStateProperty.resolveWith<Color>(

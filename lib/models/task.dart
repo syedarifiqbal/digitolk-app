@@ -60,8 +60,8 @@ class Task {
     _summary = json['summary'];
     _description = json['description'];
     _completed = json['completed'];
-    _notified = json['notified'];
-    _ownerId = json['owner_id'];
+    _notified = json['notified'].toString();
+    _ownerId = json['owner_id'].toString();
     _dueAt = json['due_at'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];

@@ -59,6 +59,7 @@ class _LocationsPageState extends State<LocationsPage>
     LocationService.fetch().then((locationData) {
       responseData = locationData;
       setLocation(locationData);
+      _getCurrentPosition();
     });
   }
 
@@ -105,6 +106,7 @@ class _LocationsPageState extends State<LocationsPage>
                         responseData = await LocationService.fetch();
                         setLocation(responseData);
                       } catch (e) {
+                        setState(() => loading = false);
                         print(e.toString());
                       }
                     },
@@ -146,7 +148,9 @@ class _LocationsPageState extends State<LocationsPage>
                 locations.length > 1
                     ? locationRow(locations.first)
                     : Center(
-                        child: Text(""),
+                        child: Text(this.location != ""
+                            ? this.location
+                            : "fetching location..."),
                       ),
                 SizedBox(height: 25),
                 const Padding(
@@ -211,7 +215,7 @@ class _LocationsPageState extends State<LocationsPage>
           SlidableAction(
             onPressed: (context) async {
               setState(() => loading = true);
-              await _getCurrentPosition();
+              // await _getCurrentPosition();
 
               String message = await LocationService.editLocation(
                 id: location.id,
@@ -219,7 +223,9 @@ class _LocationsPageState extends State<LocationsPage>
                 lng: lng,
                 location: this.location,
               );
-              locations.removeWhere((element) => element.id == location.id);
+              locations[locations
+                      .indexWhere((element) => element.id == location.id)]
+                  .location = this.location;
               setState(() => loading = false);
               Toastr(message: message).show();
             },
@@ -291,7 +297,7 @@ class _LocationsPageState extends State<LocationsPage>
           lng: element['lng'],
           createdAt: element['created_at'],
           updatedAt: element['updated_at'],
-          ownerId: element['owner_id'],
+          ownerId: element['owner_id'].toString(),
           date: element['date'],
           time: element['time'],
         ),
@@ -340,6 +346,7 @@ class _LocationsPageState extends State<LocationsPage>
     final hasPermission = await _handlePermission();
 
     if (!hasPermission) {
+      Toastr(message: "Permission not granted").show();
       return;
     }
 
@@ -361,14 +368,7 @@ class _LocationsPageState extends State<LocationsPage>
     // Test if location services are enabled.
     serviceEnabled = await _geolocatorPlatform.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      _updatePositionList(
-        _PositionItemType.log,
-        _kLocationServicesDisabledMessage,
-      );
-
+      Toastr(message: "Please enable your location").show();
       return false;
     }
 
@@ -376,16 +376,6 @@ class _LocationsPageState extends State<LocationsPage>
     if (permission == LocationPermission.denied) {
       permission = await _geolocatorPlatform.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        _updatePositionList(
-          _PositionItemType.log,
-          _kPermissionDeniedMessage,
-        );
-
         return false;
       }
     }
@@ -400,12 +390,6 @@ class _LocationsPageState extends State<LocationsPage>
       return false;
     }
 
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    _updatePositionList(
-      _PositionItemType.log,
-      _kPermissionGrantedMessage,
-    );
     return true;
   }
 

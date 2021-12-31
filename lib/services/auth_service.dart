@@ -8,12 +8,14 @@ class AuthService {
   static Future<User> login({
     required String email,
     required String password,
+    String? deviceId,
   }) async {
     Response res = await post(
       Uri.parse('$baseUrl/auth/login'),
       body: <String, String>{
         'email': email,
         'password': password,
+        'device_id': "$deviceId",
       },
     );
 
@@ -59,9 +61,9 @@ class AuthService {
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
 
-  static Future<User> me() async {
-    Response res =
-        await get(Uri.parse('$baseUrl/user'), headers: await getHeaders());
+  static Future<User> me({String? deviceId}) async {
+    Response res = await get(Uri.parse('$baseUrl/user?device_id=$deviceId'),
+        headers: await getHeaders());
 
     if (res.statusCode != 200) {
       throw Exception(res.body.toString());

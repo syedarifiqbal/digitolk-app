@@ -19,7 +19,7 @@ class BottomNavigationWidget extends StatelessWidget {
       unselectedFontSize: 12,
       backgroundColor: Colors.white,
       selectedItemColor: Colors.black,
-      unselectedItemColor: Color(0xFFC3CBCE),
+      unselectedItemColor: const Color(0xFFC3CBCE),
       onTap: onItemChange,
       unselectedIconTheme: const IconThemeData(
         color: Color(0xFFC3CBCE),
@@ -27,7 +27,7 @@ class BottomNavigationWidget extends StatelessWidget {
       selectedIconTheme: const IconThemeData(
         color: Colors.black,
       ),
-      currentIndex: this.selectedIndex,
+      currentIndex: selectedIndex,
       showUnselectedLabels: true,
       showSelectedLabels: true,
       elevation: 50,

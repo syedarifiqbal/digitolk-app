@@ -13,11 +13,13 @@ import 'package:digitolk_test/pages/locations_page.dart';
 import 'package:digitolk_test/pages/login_page.dart';
 import 'package:digitolk_test/pages/tasks_page.dart';
 import 'package:digitolk_test/services/auth_service.dart';
+import 'package:digitolk_test/services/local_notification_service.dart';
 import 'package:digitolk_test/widgets/bottom_navigation_bar.dart';
 import 'package:digitolk_test/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:pusher_client/pusher_client.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class HomePage extends StatefulWidget {
   static const String name = "HOME";
@@ -28,8 +30,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  late PusherClient pusher;
-  late String? userId;
+  PusherClient? pusher;
+  String? userId;
 
   int activeBottomMenuIndex = 0;
   int _selectedIndex = 0;
@@ -39,19 +41,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool pusherInitialized = false;
 
   DrawerItem item = DrawerItems.bottomMenus[0];
-  late Channel channel;
+  Channel? channel;
 
   @override
   void initState() {
     super.initState();
     initializeTabs();
-    initializePusher();
+    // initializePusher();
+    initializeFirebaseNotification();
   }
 
   @override
   void dispose() {
-    pusher.unsubscribe("private-task.$userId");
-    pusher.disconnect();
+    if (pusher != null) {
+      pusher?.unsubscribe("private-task.$userId");
+      pusher?.disconnect();
+    }
     super.dispose();
   }
 
@@ -77,27 +82,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildScreen() {
-    // Timer(Duration(seconds: 1), () {
-    //   Helper.reminderAlert(
-    //     context: context,
-    //     message:
-    //         "reminderAlertreminder AlertreminderAlert reminderAlert reminderAlert reminderAlert",
-    //     onRemindMeAgain: () {
-    //       Toastr(message: "This feature is not implemented yet.").show();
-    //       Navigator.pop(context);
-    //     },
-    //     onSkip: () {
-    //       Toastr(message: "Skipped").show();
-    //       Navigator.pop(context);
-    //     },
-    //   );
-    // });
-
-    try {} catch (error) {
-      // print(error.toString());
-    }
-
-    // if (!isSearchScreen) return item.screen;
     return TabBarView(
       controller: _tabController,
       children: <Widget>[
@@ -154,28 +138,26 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
 
     pusher = PusherClient(
-      "3f4c73c6334ed62f0d32",
+      PUSHER_APP_KEY,
       options,
       autoConnect: true,
       enableLogging: false,
     );
 
     // connect at a later time than at instantiation.
-    await pusher.connect();
+    await pusher?.connect();
 
-    pusher.onConnectionStateChange((state) {
+    pusher?.onConnectionStateChange((state) {
       print(
           "previousState: ${state?.previousState}, currentState: ${state?.currentState}");
       if (state?.currentState == 'DISCONNECTED') {
-        channel.unbind('due');
-        pusher.unsubscribe('private-task.$userId');
+        channel?.unbind('due');
+        pusher?.unsubscribe('private-task.$userId');
       }
       if (state?.currentState == 'CONNECTED') {
-        print("SocketID: ${pusher.getSocketId()}");
+        channel = pusher?.subscribe("private-task.$userId");
 
-        channel = pusher.subscribe("private-task.$userId");
-
-        channel.bind("due", (PusherEvent? event) {
+        channel?.bind("due", (PusherEvent? event) {
           if (event == null) {
             return;
           }
@@ -199,8 +181,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
     });
 
-    pusher.onConnectionError((error) {
+    pusher?.onConnectionError((error) {
       print("error: ${error!.message}");
     });
+  }
+
+  void initializeFirebaseNotification() {
+    FirebaseMessaging.instance.getInitialMessage().then((value) => {});
+
+    FirebaseMessaging.onMessage.listen((message) {
+      LocalNotificationService.display(message);
+      if (message.notification == null) return;
+      String? msg = message.notification!.body;
+      if (msg == null) return;
+
+      Helper.reminderAlert(
+        context: context,
+        message: msg,
+        onRemindMeAgain: () {
+          Toastr(message: "This feature is not implemented yet.").show();
+          Navigator.pop(context);
+        },
+        onSkip: () {
+          Toastr(message: "Skipped").show();
+          Navigator.pop(context);
+        },
+      );
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {});
   }
 }

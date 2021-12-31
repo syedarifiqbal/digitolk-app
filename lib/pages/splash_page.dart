@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:digitolk_test/constants.dart';
 import 'package:digitolk_test/core/api_constants.dart';
 import 'package:digitolk_test/core/storage.dart';
 import 'package:digitolk_test/models/user.dart';
@@ -56,13 +57,16 @@ class SplashPage extends StatelessWidget {
 
   loadUserIfLoggedIn(BuildContext context) async {
     String? token = await LocalStorage.get('token');
+    String? deviceId = await getDeviceId();
+
+
     if (token == null) {
       Navigator.pushNamed(context, route);
       return;
     }
 
     try {
-      User user = await AuthService.me();
+      User user = await AuthService.me(deviceId: deviceId);
       user.toJson().forEach((key, value) => LocalStorage.set(key, "$value"));
       route = HomePage.name;
     } on Exception catch (e) {

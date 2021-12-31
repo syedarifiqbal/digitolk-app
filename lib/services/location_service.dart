@@ -96,7 +96,6 @@ class LocationService {
       'lng': lng,
       '_method': "PUT",
     };
-    print(body);
 
     Response res = await post(
       Uri.parse('$baseUrl/locations/$id'),
